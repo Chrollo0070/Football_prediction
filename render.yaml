@@ -1,0 +1,10 @@
+version: v1
+services:
+  - type: web
+    name: football-predictor
+    env: python
+    branch: main
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn fast:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT
+    envVars: []
