@@ -15,3 +15,7 @@ venv/
 *.csv
 *.sqlite
 *.db
+!models/
+!models/*
+!models/*.joblib
+!models/*.json
