@@ -114,16 +114,41 @@ X_test_scaled  = pd.DataFrame(scaler.transform(X_test), columns=X_test.columns, 
 X_train_scaled = X_train_scaled.fillna(X_train_scaled.mean())
 X_test_scaled  = X_test_scaled.fillna(X_test_scaled.mean())
 
+# Load pretrained models and scaler if available; otherwise train and save artifacts.
+from joblib import load
+import os
+import json
 
-model_clf = LogisticRegression(random_state=42, max_iter=1000)
-model_clf.fit(X_train_scaled, y_train_clf)
+MODEL_DIR = os.environ.get('MODEL_DIR', 'models')
+
+def _load_models_or_train():
+  global model_clf, model_reg, scaler, feature_columns
+  clf_path = os.path.join(MODEL_DIR, 'model_clf.joblib')
+  reg_path = os.path.join(MODEL_DIR, 'model_reg.joblib')
+  scaler_path = os.path.join(MODEL_DIR, 'scaler.joblib')
+  features_path = os.path.join(MODEL_DIR, 'features.json')
+
+  if os.path.exists(clf_path) and os.path.exists(reg_path) and os.path.exists(scaler_path) and os.path.exists(features_path):
+    model_clf = load(clf_path)
+    model_reg = load(reg_path)
+    scaler = load(scaler_path)
+    with open(features_path, 'r', encoding='utf-8') as f:
+      feature_columns = json.load(f)
+  else:
+    # Train and save using helper script
+    try:
+      from train_models import train_and_save
+      train_and_save(FIFA_CSV, RESULTS_CSV, SCORERS_CSV, MODEL_DIR)
+      model_clf = load(clf_path)
+      model_reg = load(reg_path)
+      scaler = load(scaler_path)
+      with open(features_path, 'r', encoding='utf-8') as f:
+        feature_columns = json.load(f)
+    except Exception as e:
+      raise RuntimeError(f"Failed to train or load models: {e}") from e
 
 
-model_reg = RandomForestRegressor(random_state=42)
-model_reg.fit(X_train_scaled, y_train_reg)
-
-
-feature_columns = X.columns.tolist()
+_load_models_or_train()
 
 
 # ========= Helpers =========

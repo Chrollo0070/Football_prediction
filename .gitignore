@@ -1,0 +1,17 @@
+__pycache__/
+.venv/
+.env
+.ipynb_checkpoints/
+*.pyc
+*.pkl
+*.joblib
+*.egg-info/
+dist/
+build/
+env/
+venv/
+/.vscode/
+# Optional: ignore large data files going forward (untracked files only)
+*.csv
+*.sqlite
+*.db
