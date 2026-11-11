@@ -380,431 +380,380 @@ def root_ui():
   <title>Football Match Predictor</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script>
+    (function () {
+      var saved = localStorage.getItem('theme');
+      var theme = saved === 'light' || saved === 'dark'
+        ? saved
+        : (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+      document.documentElement.dataset.theme = theme;
+    })();
+  </script>
   <style>
     :root {
-      --primary: #10b981;
-      --primary-dark: #059669;
-      --secondary: #3b82f6;
-      --background: #f8fafc;
-      --card-bg: #ffffff;
-      --text: #0f172a;
-      --text-light: #64748b;
-      --border: #e2e8f0;
-      --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.06);
-      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-      --radius: 12px;
-      --win-bg: #d1fae5;
-      --draw-bg: #fef3c7;
-      --loss-bg: #fee2e2;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --mono: 'IBM Plex Mono', ui-monospace, 'Cascadia Mono', monospace;
     }
-    
+    :root, :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #0b0d14;
+      --card: #11141c;
+      --raised: #1a1e28;
+      --hairline: rgba(238, 240, 245, 0.08);
+      --hairline-strong: rgba(238, 240, 245, 0.16);
+      --text: #eef0f5;
+      --text-2: #a3a9b8;
+      --muted: #7a8296;
+      --accent: #4cc38a;
+      --btn-fg: #0b0d14;
+      --btn-hover: #ffffff;
+      --win: #4cc38a;
+      --draw: #d4a72c;
+      --loss: #e5484d;
+      --win-bg: rgba(76, 195, 138, 0.15);
+      --draw-bg: rgba(212, 167, 44, 0.15);
+      --loss-bg: rgba(229, 72, 77, 0.15);
+      --focus-ring: rgba(76, 195, 138, 0.18);
+      --focus-ring-strong: rgba(76, 195, 138, 0.3);
+      --row-hover: rgba(238, 240, 245, 0.03);
+      --error-bg: rgba(229, 72, 77, 0.08);
+      --error-border: rgba(229, 72, 77, 0.3);
+    }
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f5f7fa;
+      --card: #ffffff;
+      --raised: #eceff4;
+      --hairline: rgba(17, 24, 39, 0.08);
+      --hairline-strong: rgba(17, 24, 39, 0.16);
+      --text: #111827;
+      --text-2: #4b5565;
+      --muted: #6b7487;
+      --accent: #15803d;
+      --btn-fg: #ffffff;
+      --btn-hover: #1f2937;
+      --win: #15803d;
+      --draw: #a16207;
+      --loss: #dc2626;
+      --win-bg: rgba(21, 128, 61, 0.12);
+      --draw-bg: rgba(161, 98, 7, 0.12);
+      --loss-bg: rgba(220, 38, 38, 0.1);
+      --focus-ring: rgba(21, 128, 61, 0.16);
+      --focus-ring-strong: rgba(21, 128, 61, 0.3);
+      --row-hover: rgba(17, 24, 39, 0.03);
+      --error-bg: rgba(220, 38, 38, 0.06);
+      --error-border: rgba(220, 38, 38, 0.25);
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    
+
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
+      font-size: 14px;
+      line-height: 20px;
+    }
+
+    .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    .shell { max-width: 1160px; margin: 0 auto; padding: 0 24px 48px; }
+
+    /* Top bar */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; height: 64px; margin-bottom: 32px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-mark { color: var(--accent); display: flex; }
+    .brand-name { font-size: 16px; font-weight: 500; }
+    .topbar-meta { font-size: 12px; color: var(--muted); }
+
+    /* Panels */
+    .stack { display: grid; gap: 16px; }
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--hairline);
+      border-radius: 16px;
       padding: 24px;
-      color: var(--text);
     }
-    
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
+    .panel-title { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+    .panel-sub { font-size: 13px; color: var(--text-2); margin-bottom: 20px; }
+    .card-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 14px; font-weight: 500; margin-bottom: 16px; min-height: 24px;
     }
-    
-    .header {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      padding: 32px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow-lg);
-      text-align: center;
+    .team-badge {
+      font-size: 12px; font-weight: 400; color: var(--text-2);
+      background: var(--raised); border: 1px solid var(--hairline);
+      border-radius: 6px; padding: 2px 8px;
+      max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
-    
-    .header h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 8px;
-    }
-    
-    .header p {
-      color: var(--text-light);
-      font-size: 1rem;
-    }
-    
-    .prediction-panel {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      padding: 32px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow-lg);
-    }
-    
-    .prediction-title {
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 24px;
-      color: var(--text);
-    }
-    
+
+    /* Form */
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-      margin-bottom: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
     }
-    
-    .form-field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    
-    .form-field label {
-      font-weight: 500;
-      font-size: 0.875rem;
-      color: var(--text);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    
-    .input-wrapper {
-      position: relative;
-    }
-    
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field > label { font-size: 12px; color: var(--text-2); }
     .filter-input {
-      width: 100%;
-      padding: 12px 16px;
-      font-size: 0.95rem;
-      border: 2px solid var(--border);
-      border-radius: 8px;
-      background: var(--background);
-      transition: all 0.2s;
+      height: 36px; padding: 0 12px; font-size: 13px;
+      color: var(--text); background: var(--raised);
+      border: 1px solid var(--hairline); border-radius: 8px;
       font-family: inherit;
+      transition: border-color 140ms var(--ease);
     }
-    
+    .filter-input::placeholder { color: var(--muted); }
     .filter-input:focus {
-      outline: none;
-      border-color: var(--secondary);
-      background: white;
+      outline: none; border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--focus-ring);
     }
-    
     select {
-      width: 100%;
-      padding: 12px 16px;
-      font-size: 0.95rem;
-      border: 2px solid var(--border);
-      border-radius: 8px;
-      background: white;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-family: inherit;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      height: 40px; padding: 0 36px 0 12px; font-size: 13px;
+      color: var(--text); background-color: var(--raised);
+      border: 1px solid var(--hairline); border-radius: 8px;
+      font-family: inherit; cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237a8296' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 12px center;
-      background-size: 20px;
-      padding-right: 44px;
+      transition: border-color 140ms var(--ease);
     }
-    
     select:focus {
-      outline: none;
-      border-color: var(--secondary);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      outline: none; border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--focus-ring);
     }
-    
-    .checkbox-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px;
-      background: var(--background);
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s;
+    .check {
+      display: flex; align-items: center; gap: 10px;
+      height: 40px; padding: 0 12px;
+      background: var(--raised); border: 1px solid var(--hairline); border-radius: 8px;
+      cursor: pointer; user-select: none;
+      transition: border-color 140ms var(--ease);
     }
-    
-    .checkbox-wrapper:hover {
-      background: #e0e7ff;
-    }
-    
-    input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-      accent-color: var(--primary);
-    }
-    
-    .checkbox-label {
-      font-weight: 500;
-      color: var(--text);
-      cursor: pointer;
-    }
-    
+    .check:hover { border-color: var(--hairline-strong); }
+    input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+    .check span { font-size: 13px; }
     .predict-btn {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-      color: white;
-      padding: 14px 32px;
-      font-size: 1rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s;
-      box-shadow: var(--shadow);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      height: 44px; padding: 0 20px;
+      background: var(--text); color: var(--btn-fg);
+      border: none; border-radius: 8px; cursor: pointer;
+      font-size: 14px; font-weight: 500; font-family: inherit;
+      transition: background-color 140ms var(--ease), transform 140ms var(--ease);
     }
-    
-    .predict-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-    
-    .predict-btn:active {
-      transform: translateY(0);
-    }
-    
-    .insights-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-      gap: 24px;
-      margin-bottom: 24px;
-    }
-    
-    .card {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      padding: 24px;
-      box-shadow: var(--shadow-lg);
-      transition: all 0.3s;
-    }
-    
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
-    }
-    
-    .card-title {
-      font-size: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 16px;
-      color: var(--text);
-      padding-bottom: 12px;
-      border-bottom: 2px solid var(--border);
-    }
-    
-    .team-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border-radius: 20px;
-      font-size: 0.875rem;
-      font-weight: 600;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 12px;
-    }
-    
+    .predict-btn:hover { background: var(--btn-hover); }
+    .predict-btn:active { transform: scale(0.98); }
+    .predict-btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus-ring-strong); }
+
+    /* Insights */
+    .insights-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    table { width: 100%; border-collapse: collapse; }
     th {
-      background: var(--background);
-      padding: 12px;
-      text-align: left;
-      font-weight: 600;
-      font-size: 0.875rem;
-      color: var(--text);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      border-bottom: 2px solid var(--border);
+      padding: 8px 12px; text-align: left;
+      font-size: 12px; font-weight: 400; color: var(--muted);
+      border-bottom: 1px solid var(--hairline);
     }
-    
     td {
-      padding: 12px;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.9rem;
-      color: var(--text);
+      padding: 8px 12px; height: 40px;
+      font-size: 13px; color: var(--text-2);
+      border-bottom: 1px solid var(--hairline);
     }
-    
-    tr:hover {
-      background: var(--background);
-    }
-    
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr { transition: background-color 140ms var(--ease); }
+    tbody tr:hover { background: var(--row-hover); }
+    td.score { color: var(--text); }
+
     .result-badge {
-      display: inline-block;
-      width: 28px;
-      height: 28px;
-      line-height: 28px;
-      text-align: center;
-      border-radius: 50%;
-      font-weight: 700;
-      font-size: 0.875rem;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px; border-radius: 4px;
+      font-family: var(--mono); font-size: 11px; font-weight: 500;
     }
-    
-    .result-W { background: var(--win-bg); color: #065f46; }
-    .result-D { background: var(--draw-bg); color: #92400e; }
-    .result-L { background: var(--loss-bg); color: #991b1b; }
-    
-    .prediction-result {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 32px;
-      border-radius: var(--radius);
-      text-align: center;
-      margin-top: 16px;
-    }
-    
-    .prediction-result h3 {
-      font-size: 2rem;
-      margin-bottom: 12px;
-    }
-    
-    .scoreline {
-      font-size: 3rem;
-      font-weight: 700;
-      margin: 16px 0;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-    }
-    
-    .scorers {
-      background: rgba(255,255,255,0.15);
-      padding: 16px;
-      border-radius: 8px;
-      margin-top: 16px;
-      backdrop-filter: blur(10px);
-    }
-    
-    .scorers-title {
-      font-weight: 600;
-      margin-bottom: 8px;
-      font-size: 1.1rem;
-    }
-    
-    .empty-state {
-      text-align: center;
-      padding: 48px;
-      color: var(--text-light);
-      font-style: italic;
-    }
-    
+    .result-W { background: var(--win-bg); color: var(--win); }
+    .result-D { background: var(--draw-bg); color: var(--draw); }
+    .result-L { background: var(--loss-bg); color: var(--loss); }
+
+    .empty-state { padding: 32px 16px; text-align: center; font-size: 13px; color: var(--muted); }
+
+    /* H2H summary */
     .h2h-summary {
-      display: flex;
-      justify-content: space-around;
-      padding: 20px;
-      background: var(--background);
-      border-radius: 8px;
-      margin-top: 16px;
+      display: flex; gap: 48px; flex-wrap: wrap;
+      margin-top: 16px; padding-top: 16px;
+      border-top: 1px solid var(--hairline);
     }
-    
-    .h2h-stat {
-      text-align: center;
-    }
-    
+    .h2h-stat-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
     .h2h-stat-value {
-      font-size: 2rem;
-      font-weight: 700;
-      color: var(--primary);
+      font-family: var(--mono); font-variant-numeric: tabular-nums;
+      font-size: 28px; line-height: 1; font-weight: 500;
     }
-    
-    .h2h-stat-label {
-      font-size: 0.875rem;
-      color: var(--text-light);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+
+    /* Scoreboard moment */
+    .scoreboard {
+      background: var(--raised);
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      padding: 32px 24px;
+      text-align: center;
+      animation: rise 300ms var(--ease);
     }
-    
-    @media (max-width: 768px) {
-      body { padding: 12px; }
-      .header { padding: 24px 16px; }
-      .header h1 { font-size: 1.75rem; }
-      .prediction-panel { padding: 20px; }
-      .form-grid { grid-template-columns: 1fr; }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+    .scoreboard-label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .scoreboard-winner { font-size: 20px; font-weight: 500; color: var(--accent); margin-bottom: 16px; }
+    .scoreline {
+      font-family: var(--mono); font-variant-numeric: tabular-nums;
+      font-size: 48px; line-height: 1; font-weight: 500;
+      margin-bottom: 16px;
+    }
+    .scoreboard-prob { font-size: 13px; color: var(--text-2); }
+    .scoreboard-prob b { font-family: var(--mono); font-weight: 500; color: var(--text); }
+    .scorers-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+      margin-top: 24px; padding-top: 16px;
+      border-top: 1px solid var(--hairline); text-align: left;
+    }
+    .scorer-label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .scorer-names { font-size: 13px; color: var(--text-2); }
+
+    /* Status */
+    .loading {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 32px 16px; font-size: 13px; color: var(--muted);
+    }
+    .spinner {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 1.5px solid var(--hairline-strong); border-top-color: var(--accent);
+      animation: spin 800ms linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .notice-error {
+      padding: 16px; border: 1px solid var(--error-border);
+      background: var(--error-bg); border-radius: 8px;
+      font-size: 13px; color: var(--loss);
+    }
+
+    /* Theme toggle */
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .theme-toggle {
+      display: flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; padding: 0;
+      background: transparent; border: 1px solid var(--hairline); border-radius: 8px;
+      color: var(--muted); cursor: pointer;
+      transition: border-color 140ms var(--ease), color 140ms var(--ease);
+    }
+    .theme-toggle:hover { border-color: var(--hairline-strong); color: var(--text-2); }
+    .theme-toggle:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--focus-ring-strong); }
+    .theme-toggle svg { display: block; }
+    :root[data-theme="light"] .icon-sun { display: none; }
+    :root[data-theme="light"] .icon-moon { display: block; }
+    :root:not([data-theme="light"]) .icon-sun { display: block; }
+    :root:not([data-theme="light"]) .icon-moon { display: none; }
+
+    @media (max-width: 900px) {
       .insights-grid { grid-template-columns: 1fr; }
-      .scoreline { font-size: 2rem; }
+    }
+    @media (max-width: 768px) {
+      .shell { padding: 0 16px 32px; }
+      .topbar { margin-bottom: 24px; }
+      .topbar-meta { display: none; }
+      .panel { padding: 16px; }
+      .scoreboard { padding: 24px 16px; }
+      .scoreline { font-size: 36px; }
+      .scorers-grid { grid-template-columns: 1fr; }
+      .h2h-summary { gap: 32px; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>⚽ Football Match Predictor</h1>
-      <p>Advanced ML-powered football match predictions with comprehensive team insights</p>
-    </div>
-    
-    <div class="prediction-panel">
-      <h2 class="prediction-title">Match Setup</h2>
-      
-      <div class="form-grid">
-        <div class="form-field">
-          <label for="homeFilter">🏠 Home Team</label>
-          <div class="input-wrapper">
-            <input id="homeFilter" class="filter-input" placeholder="Search home team..." autocomplete="off">
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/>
+            <line x1="12" y1="4" x2="12" y2="20"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </span>
+        <span class="brand-name">Football Match Predictor</span>
+      </div>
+      <div class="topbar-right">
+        <span class="topbar-meta">Men's international fixtures</span>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+          </svg>
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="stack">
+      <section class="panel">
+        <h2 class="panel-title">Match setup</h2>
+        <p class="panel-sub">Pick two teams and a tournament — you get a scoreline, win probability and likely scorers</p>
+
+        <div class="form-grid">
+          <div class="field">
+            <label for="homeFilter">Home team</label>
+            <input id="homeFilter" class="filter-input" placeholder="Search" autocomplete="off">
             <select id="home"></select>
           </div>
-        </div>
-        
-        <div class="form-field">
-          <label for="awayFilter">✈️ Away Team</label>
-          <div class="input-wrapper">
-            <input id="awayFilter" class="filter-input" placeholder="Search away team..." autocomplete="off">
+
+          <div class="field">
+            <label for="awayFilter">Away team</label>
+            <input id="awayFilter" class="filter-input" placeholder="Search" autocomplete="off">
             <select id="away"></select>
           </div>
-        </div>
-        
-        <div class="form-field">
-          <label for="tourFilter">🏆 Tournament</label>
-          <div class="input-wrapper">
-            <input id="tourFilter" class="filter-input" placeholder="Search tournament..." autocomplete="off">
+
+          <div class="field">
+            <label for="tourFilter">Tournament</label>
+            <input id="tourFilter" class="filter-input" placeholder="Search" autocomplete="off">
             <select id="tournament"></select>
           </div>
-        </div>
-        
-        <div class="form-field">
-          <label style="visibility: hidden;">Action</label>
-          <div class="checkbox-wrapper" onclick="document.getElementById('neutral').click()">
-            <input type="checkbox" id="neutral">
-            <span class="checkbox-label">Neutral Venue</span>
+
+          <div class="field">
+            <label style="visibility: hidden;" for="neutral">Options</label>
+            <div class="check" onclick="document.getElementById('neutral').click()">
+              <input type="checkbox" id="neutral">
+              <span>Neutral venue</span>
+            </div>
           </div>
         </div>
+
+        <button class="predict-btn" id="predict">Predict match outcome</button>
+      </section>
+
+      <div class="insights-grid">
+        <section class="panel">
+          <h3 class="card-title">Last 5 matches <span class="team-badge" id="homeBadge">Home</span></h3>
+          <div id="last5_home" class="empty-state">Select a home team to see recent results</div>
+        </section>
+
+        <section class="panel">
+          <h3 class="card-title">Last 5 matches <span class="team-badge" id="awayBadge">Away</span></h3>
+          <div id="last5_away" class="empty-state">Select an away team to see recent results</div>
+        </section>
       </div>
-      
-      <button class="predict-btn" id="predict">🔮 Predict Match Outcome</button>
-    </div>
-    
-    <div class="insights-grid">
-      <div class="card">
-        <h3 class="card-title">
-          Last 5 Matches — <span class="team-badge" id="homeBadge">Home</span>
-        </h3>
-        <div id="last5_home" class="empty-state">Select a home team to view recent matches</div>
-      </div>
-      
-      <div class="card">
-        <h3 class="card-title">
-          Last 5 Matches — <span class="team-badge" id="awayBadge">Away</span>
-        </h3>
-        <div id="last5_away" class="empty-state">Select an away team to view recent matches</div>
-      </div>
-    </div>
-    
-    <div class="card">
-      <h3 class="card-title">Head-to-Head Record</h3>
-      <div id="h2h" class="empty-state">Select both teams to view head-to-head record</div>
-      <div id="h2h_summary"></div>
-    </div>
-    
-    <div class="card">
-      <h3 class="card-title">Match Prediction</h3>
-      <div id="prediction" class="empty-state">Click "Predict Match Outcome" to see the prediction</div>
+
+      <section class="panel">
+        <h3 class="card-title">Head-to-head</h3>
+        <div id="h2h" class="empty-state">Select both teams to see the head-to-head record</div>
+        <div id="h2h_summary"></div>
+      </section>
+
+      <section class="panel">
+        <h3 class="card-title">Prediction</h3>
+        <div id="prediction" class="empty-state">Select teams and a tournament, then run a prediction</div>
+      </section>
     </div>
   </div>
 
@@ -812,13 +761,13 @@ def root_ui():
 function enableFilter(inputId, selectId, allItems) {
   const inp = document.getElementById(inputId);
   const sel = document.getElementById(selectId);
-  
+
   const render = (query) => {
     const q = (query || "").toLowerCase();
     const items = allItems.filter(t => t.toLowerCase().includes(q));
-    sel.innerHTML = '<option value="">Select a team...</option>' + items.map(t => `<option value="${t}">${t}</option>`).join('');
+    sel.innerHTML = '<option value="">Select</option>' + items.map(t => `<option value="${t}">${t}</option>`).join('');
   };
-  
+
   inp.addEventListener('input', () => render(inp.value));
   inp.addEventListener('focus', () => inp.select());
   render('');
@@ -830,7 +779,7 @@ async function loadOptions() {
       fetch('/teams').then(r => r.json()),
       fetch('/tournaments').then(r => r.json())
     ]);
-    
+
     enableFilter('homeFilter', 'home', teams);
     enableFilter('awayFilter', 'away', teams);
     enableFilter('tourFilter', 'tournament', tournaments);
@@ -841,36 +790,38 @@ async function loadOptions() {
 
 function renderTable(id, rows) {
   const container = document.getElementById(id);
-  
+
   if (!rows || rows.length === 0) {
-    container.innerHTML = '<div class="empty-state">No data available</div>';
+    container.innerHTML = '<div class="empty-state">No matches found</div>';
     return;
   }
-  
+
   const cols = Object.keys(rows[0]);
   let html = '<table><thead><tr>';
-  
+
   cols.forEach(col => {
     if (!['home_team', 'away_team', 'home_score', 'away_score'].includes(col)) {
       html += `<th>${col}</th>`;
     }
   });
   html += '</tr></thead><tbody>';
-  
+
   rows.forEach(row => {
     html += '<tr>';
     cols.forEach(col => {
       if (!['home_team', 'away_team', 'home_score', 'away_score'].includes(col)) {
         let value = row[col] ?? '';
+        const isMono = col === 'Date' || col === 'Scoreline' || col === 'Scoreline(A)';
         if (col === 'Result' || col === 'Result(A)') {
           value = `<span class="result-badge result-${value}">${value}</span>`;
         }
-        html += `<td>${value}</td>`;
+        const cls = col === 'Scoreline' || col === 'Scoreline(A)' ? 'mono score' : (isMono ? 'mono' : '');
+        html += `<td${cls ? ` class="${cls}"` : ''}>${value}</td>`;
       }
     });
     html += '</tr>';
   });
-  
+
   html += '</tbody></table>';
   container.innerHTML = html;
 }
@@ -878,41 +829,41 @@ function renderTable(id, rows) {
 async function refreshInsights() {
   const home = document.getElementById('home').value;
   const away = document.getElementById('away').value;
-  
+
   document.getElementById('homeBadge').textContent = home || 'Home';
   document.getElementById('awayBadge').textContent = away || 'Away';
-  
+
   if (!home || !away) return;
-  
+
   try {
     const qs = new URLSearchParams({ home_team: home, away_team: away }).toString();
     const res = await fetch('/insights?' + qs);
     const data = await res.json();
-    
+
     if (!res.ok) {
       console.error('Insights error:', data);
       return;
     }
-    
+
     renderTable('last5_home', data.last5_home);
     renderTable('last5_away', data.last5_away);
     renderTable('h2h', data.h2h_last);
-    
+
     if (data.h2h_summary) {
       const summary = data.h2h_summary;
       document.getElementById('h2h_summary').innerHTML = `
         <div class="h2h-summary">
           <div class="h2h-stat">
+            <div class="h2h-stat-label">${home} wins</div>
             <div class="h2h-stat-value">${summary.A_wins || 0}</div>
-            <div class="h2h-stat-label">${home} Wins</div>
           </div>
           <div class="h2h-stat">
-            <div class="h2h-stat-value">${summary.Draws || 0}</div>
             <div class="h2h-stat-label">Draws</div>
+            <div class="h2h-stat-value">${summary.Draws || 0}</div>
           </div>
           <div class="h2h-stat">
+            <div class="h2h-stat-label">${away} wins</div>
             <div class="h2h-stat-value">${summary.B_wins || 0}</div>
-            <div class="h2h-stat-label">${away} Wins</div>
           </div>
         </div>
       `;
@@ -928,51 +879,52 @@ async function doPredict() {
   const tournament = document.getElementById('tournament').value;
   const neutral = document.getElementById('neutral').checked;
   const out = document.getElementById('prediction');
-  
+
   if (!home || !away || !tournament) {
-    alert('⚠️ Please select home team, away team, and tournament');
+    out.innerHTML = '<div class="notice-error">Select home team, away team and tournament</div>';
     return;
   }
-  
-  out.innerHTML = '<div class="empty-state">🔄 Generating prediction...</div>';
-  
+
+  out.innerHTML = '<div class="loading"><span class="spinner"></span>Generating prediction</div>';
+
   try {
     const resp = await fetch('/predict', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ home_team: home, away_team: away, tournament, neutral })
     });
-    
+
     const data = await resp.json();
-    
+
     if (!resp.ok) {
-      out.innerHTML = `<div class="empty-state">❌ Prediction failed: ${JSON.stringify(data)}</div>`;
+      out.innerHTML = `<div class="notice-error">Prediction failed — ${JSON.stringify(data)}</div>`;
       return;
     }
-    
+
     const homeScorers = (data.home_scorers || []).join(', ') || 'None';
     const awayScorers = (data.away_scorers || []).join(', ') || 'None';
     const probability = ((data.proba_home_win || 0) * 100).toFixed(1);
-    
+
     out.innerHTML = `
-      <div class="prediction-result">
-        <h3>🎯 ${data.winner || 'Unknown'}</h3>
+      <div class="scoreboard">
+        <div class="scoreboard-label">Predicted winner</div>
+        <div class="scoreboard-winner">${data.winner || 'Unknown'}</div>
         <div class="scoreline">${data.scoreline || '0-0'}</div>
-        <div style="font-size: 1.1rem; margin-bottom: 20px;">
-          Win Probability: ${probability}%
-        </div>
-        <div class="scorers">
-          <div class="scorers-title">🏠 ${home} Scorers:</div>
-          <div>${homeScorers}</div>
-        </div>
-        <div class="scorers">
-          <div class="scorers-title">✈️ ${away} Scorers:</div>
-          <div>${awayScorers}</div>
+        <div class="scoreboard-prob">${home} win probability <b>${probability}%</b></div>
+        <div class="scorers-grid">
+          <div>
+            <div class="scorer-label">${home} scorers</div>
+            <div class="scorer-names">${homeScorers}</div>
+          </div>
+          <div>
+            <div class="scorer-label">${away} scorers</div>
+            <div class="scorer-names">${awayScorers}</div>
+          </div>
         </div>
       </div>
     `;
   } catch(e) {
-    out.innerHTML = `<div class="empty-state">❌ Network error: ${e.message}</div>`;
+    out.innerHTML = `<div class="notice-error">Prediction failed — ${e.message}</div>`;
   }
 }
 
@@ -980,6 +932,12 @@ document.getElementById('home').addEventListener('change', refreshInsights);
 document.getElementById('away').addEventListener('change', refreshInsights);
 document.getElementById('predict').addEventListener('click', doPredict);
 document.getElementById('neutral').addEventListener('click', (e) => e.stopPropagation());
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem('theme', next);
+});
 
 loadOptions();
 </script>
