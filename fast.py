@@ -29,9 +29,11 @@ except FileNotFoundError as e:
 
 
 # ========= Preprocess & merge =========
-df_fifa['date'] = pd.to_datetime(df_fifa['date'], errors='coerce')
-df_results['date'] = pd.to_datetime(df_results['date'], errors='coerce')
-goals_df['date'] = pd.to_datetime(goals_df['date'], errors='coerce')
+# datetime64[ns] everywhere: pandas 3 infers mixed resolutions per CSV,
+# which breaks merge_asof with "incompatible merge keys"
+df_fifa['date'] = pd.to_datetime(df_fifa['date'], errors='coerce').astype('datetime64[ns]')
+df_results['date'] = pd.to_datetime(df_results['date'], errors='coerce').astype('datetime64[ns]')
+goals_df['date'] = pd.to_datetime(goals_df['date'], errors='coerce').astype('datetime64[ns]')
 
 
 df_fifa = df_fifa.sort_values('date').reset_index(drop=True)
